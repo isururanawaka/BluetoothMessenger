@@ -19,6 +19,7 @@ package com.icg.bluetoothmessenger;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -79,12 +80,12 @@ public class BluetoothMessenger extends Activity {
     // Member object for the chat services
     private MessengerService mChatService = null;
 
-
+    private Context cntx;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(D) Log.e(TAG, "+++ ON CREATE +++");
-
+        cntx = getApplicationContext();
         // Set up the window layout
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
         setContentView(R.layout.main);
@@ -238,7 +239,9 @@ public class BluetoothMessenger extends Activity {
 
     // The Handler that gets information back from the BluetoothChatService
     private final Handler mHandler = new Handler() {
-        @Override
+       
+
+		@Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
             case MESSAGE_STATE_CHANGE:
@@ -269,6 +272,7 @@ public class BluetoothMessenger extends Activity {
                 // construct a string from the valid bytes in the buffer
                 String readMessage = new String(readBuf, 0, msg.arg1);
                 mConversationArrayAdapter.add(mConnectedDeviceName+":  " + readMessage);
+                ReceiverNotificationService.showNotification(cntx, readMessage, mConnectedDeviceName);
                 break;
             case MESSAGE_DEVICE_NAME:
                 // save the connected device's name
